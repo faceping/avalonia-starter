@@ -14,7 +14,7 @@
   <ItemGroup>
     <PackageReference Include="Avalonia.iOS" Version="12.1.4" />
     <ProjectReference Include="..\FaceCheck\FaceCheck.csproj" />
-    <PackageReference Include="FacePing.Sdk.Avalonia" Version="1.0.0-preview.10" />
+    <PackageReference Include="FacePing.Sdk.Avalonia" Version="1.0.0-preview.11" />
   </ItemGroup>
 
 </Project>
