@@ -6,7 +6,7 @@ It's the finished app from the [Avalonia quickstart](https://docs.faceping.ai/st
 
 ## Run it
 
-You need the [.NET 10 SDK](https://dotnet.microsoft.com/download) with the Android workload (`dotnet workload install android`) and, for iPhone, the iOS workload and Xcode on a Mac. Then an Android phone (Android 7 or later, 64-bit) or an iPhone (iOS 15 or later) with a cable. Simulators and emulators have no front camera.
+You need the [.NET 10 SDK](https://dotnet.microsoft.com/download) with the Android workload (`dotnet workload install android`) and, for iPhone, the iOS workload and Xcode on a Mac. Then an Android phone (Android 7 or later, 64-bit) or an iPhone (iOS 15.1 or later) with a cable. Simulators and emulators have no front camera.
 
 1. **Get a free sandbox key** at [app.faceping.ai/signup](https://app.faceping.ai/signup) (no card, no approval). In the dashboard: **Developers → Sandbox keys → Create sandbox key**.
 2. **Paste it** into `FaceCheck/App.axaml.cs`, replacing `fp_test_…`.
