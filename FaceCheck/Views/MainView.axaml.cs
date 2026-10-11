@@ -9,7 +9,10 @@ using FacePing.Sdk.Avalonia;
 
 namespace FaceCheck.Views;
 
-/// <summary>The same screen as the other FaceCheck apps: enrol your face, then verify it live, with or without a network.</summary>
+/// <summary>
+/// The same screen as the other FaceCheck apps: enrol your face, then verify it live, with or without a network. As a
+/// check-in device, it gets its people from your practice list instead, and only verifies.
+/// </summary>
 public partial class MainView : UserControl
 {
     static readonly IBrush Ink = Brush.Parse("#0F172A"), Green = Brush.Parse("#047857"), Red = Brush.Parse("#B91C1C");
@@ -25,6 +28,9 @@ public partial class MainView : UserControl
         // Whether the phone has a network, checked every couple of seconds (the checks never need one).
         networkTimer = new DispatcherTimer(TimeSpan.FromSeconds(2), DispatcherPriority.Background, (_, _) => ShowNetwork());
         ShowNetwork();
+        // A check-in device gets its people from the server: no enrolling here, and Verify opens once PersonId has synced.
+        EnrollButton.IsVisible = faceping.IsSandbox;
+        faceping.Synced += (_, sync) => Dispatcher.UIThread.Post(() => OnSynced(sync));
     }
 
     protected override async void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -42,9 +48,9 @@ public partial class MainView : UserControl
         // Activates the sandbox key on the first run, and a face enrolled earlier may still be on the phone (sandbox faces
         // are deleted 24 hours after enrolment).
         try { await faceping.SyncAsync(); }
-        catch (FacePingSetupException ex) { Show("Sandbox key problem", ex.Message, Red); }
+        catch (FacePingSetupException ex) { Show(faceping.IsSandbox ? "Sandbox key problem" : "Device token problem", ex.Message, Red); }
         catch (FacePingModelException ex) { Show("Face check unavailable", ex.Message, Red); }
-        SetEnrolled(faceping.EnrolledIds.Contains("me"));
+        SetEnrolled(faceping.EnrolledIds.Contains(App.PersonId));
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
@@ -60,7 +66,7 @@ public partial class MainView : UserControl
             Show("Hold still", "Taking the photo…", Ink);
             Camera.GuideState = FaceGuideState.Working;
             var photo = await Camera.CaptureAsync();
-            var result = await faceping.EnrollAsync("me", photo);
+            var result = await faceping.EnrollAsync(App.PersonId, photo);
             Camera.GuideState = FaceGuideState.Ready;
             if (result.Outcome == EnrollOutcome.Enrolled)
             {
@@ -80,7 +86,7 @@ public partial class MainView : UserControl
         {
             Show("Turn your head", "Liveness check…", Ink);
             // A live check: matches your face, asks you to turn your head (liveness), then matches again.
-            var result = await faceping.VerifyLiveAsync("me", Camera);
+            var result = await faceping.VerifyLiveAsync(App.PersonId, Camera);
             var time = $"{result.Elapsed.TotalSeconds:0.00} s";
             if (result.IsMatch)
                 Show("Match", $"Live face · {time} · {(Offline ? "no network used" : "on the phone")}", Green);
@@ -103,7 +109,7 @@ public partial class MainView : UserControl
         {
             // The sandbox key is missing or revoked, or the very first run had no connection.
             Camera.GuideState = FaceGuideState.Ready;
-            Show("Sandbox key problem", ex.Message, Red);
+            Show(faceping.IsSandbox ? "Sandbox key problem" : "Device token problem", ex.Message, Red);
         }
         catch (FacePingModelException ex)
         {
@@ -121,7 +127,31 @@ public partial class MainView : UserControl
         {
             busy = false;
             EnrollButton.IsEnabled = true;
-            VerifyButton.IsEnabled = faceping.EnrolledIds.Contains("me");
+            VerifyButton.IsEnabled = faceping.EnrolledIds.Contains(App.PersonId);
+        }
+    }
+
+    // After every sync: open Verify once PersonId is here, and on a check-in device say what the sync found.
+    void OnSynced(SyncResult sync)
+    {
+        var here = faceping.EnrolledIds.Contains(App.PersonId);
+        SetEnrolled(here);
+        if (faceping.IsSandbox)
+            return;
+        switch (sync.Status)
+        {
+            case SyncStatus.Revoked:
+                Show("Device token not valid", "It was revoked or mistyped, or its list was deleted. Add the device again and use the new token.", Red);
+                break;
+            case SyncStatus.Gone:
+                Show("List finished", "This list's faces have been deleted, so there's no one to check.", Ink);
+                break;
+            case SyncStatus.Unavailable:
+                Show("Couldn't sync", "No connection to FacePing. The people synced before still work until the lease runs out.", Ink);
+                break;
+            default:
+                Show($"{sync.Enrolled} people synced", here ? $"{App.PersonId} is here: tap Verify." : $"{App.PersonId} isn't on this list yet. Enrol them on your server, then reopen the app.", Ink);
+                break;
         }
     }
 
@@ -156,6 +186,7 @@ public partial class MainView : UserControl
         VerifyOutcome.LivenessFailed => "Not a live face",
         VerifyOutcome.ChallengeFailed => "Head turn not seen",
         VerifyOutcome.Expired => "Enrolment expired",
+        VerifyOutcome.LeaseExpired => "Sync needed",
         _ => outcome.ToString()
     };
 

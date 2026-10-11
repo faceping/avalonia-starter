@@ -16,6 +16,10 @@ public class Application : AvaloniaAndroidApplication<App>
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder) =>
         base.CustomizeAppBuilder(builder)
             .WithInterFont()
-            // Turns FacePing on with your sandbox key (in App.axaml.cs).
-            .UseFacePing(o => o.SandboxKey = App.SandboxKey);
+            // Turns FacePing on with your sandbox key, or a device token (both in App.axaml.cs).
+            .UseFacePing(o =>
+            {
+                if (App.DeviceMode) o.DeviceToken = App.DeviceToken;
+                else o.SandboxKey = App.SandboxKey;
+            });
 }
