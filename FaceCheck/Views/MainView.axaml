@@ -1,0 +1,64 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:fp="using:FacePing.Sdk.Avalonia"
+             x:Class="FaceCheck.Views.MainView"
+             Background="White">
+  <UserControl.Styles>
+    <Style Selector="Button.wide">
+      <Setter Property="Height" Value="50" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="FontSize" Value="16" />
+      <Setter Property="FontWeight" Value="Bold" />
+    </Style>
+    <Style Selector="Button.outline">
+      <Setter Property="Background" Value="White" />
+      <Setter Property="Foreground" Value="#0F172A" />
+      <Setter Property="BorderBrush" Value="#CBD5E1" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="Button.primary">
+      <Setter Property="Background" Value="#2563EB" />
+      <Setter Property="Foreground" Value="White" />
+    </Style>
+    <Style Selector="Button.primary:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#1D4ED8" />
+      <Setter Property="Foreground" Value="White" />
+    </Style>
+    <Style Selector="Button:disabled">
+      <Setter Property="Opacity" Value="0.45" />
+    </Style>
+  </UserControl.Styles>
+
+  <!-- Safe area: clear of the status bar, the notch and the home indicator. -->
+  <Grid RowDefinitions="Auto,*,Auto" Margin="18,10,18,22" x:Name="Root">
+
+    <!-- App bar: the name, and whether the phone has a network (the checks never need one) -->
+    <Grid ColumnDefinitions="*,Auto" Margin="2,6,2,0">
+      <TextBlock Text="FaceCheck" FontSize="22" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
+      <Border Grid.Column="1" x:Name="NetworkPill" Background="#EAECF0" CornerRadius="8" Padding="10,4" VerticalAlignment="Center">
+        <TextBlock x:Name="NetworkText" Text="Online" FontSize="13" FontWeight="Bold" Foreground="#475569" />
+      </Border>
+    </Grid>
+
+    <!-- The camera, with the result card over its bottom edge -->
+    <Border Grid.Row="1" Margin="0,12" CornerRadius="18" ClipToBounds="True" Background="#0B1220">
+      <Grid>
+        <fp:FaceCameraView x:Name="Camera" />
+        <Border Background="#F5FFFFFF" CornerRadius="12" Padding="14,10" Margin="12" VerticalAlignment="Bottom" IsHitTestVisible="False">
+          <StackPanel Spacing="2">
+            <TextBlock x:Name="ResultTitle" Text="Look at the camera" FontSize="17" FontWeight="Bold" Foreground="#0F172A" />
+            <TextBlock x:Name="ResultNote" Text="Tap Enrol my face to start." FontSize="14" Foreground="#475569" TextWrapping="Wrap" />
+          </StackPanel>
+        </Border>
+      </Grid>
+    </Border>
+
+    <StackPanel Grid.Row="2" Spacing="10">
+      <Button x:Name="EnrollButton" Classes="wide outline" Content="Enrol my face" Click="OnEnroll" />
+      <Button x:Name="VerifyButton" Classes="wide primary" Content="Verify" Click="OnVerify" IsEnabled="False" />
+    </StackPanel>
+  </Grid>
+</UserControl>
