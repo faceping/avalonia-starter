@@ -5,7 +5,7 @@
     <SupportedOSPlatformVersion>24</SupportedOSPlatformVersion>
     <Nullable>enable</Nullable>
     <!-- Change this to your own app id before you build your own app from this starter. -->
-    <ApplicationId>com.example.facecheck.avalonia</ApplicationId>
+    <ApplicationId>com.yourcompany.facecheck</ApplicationId>
     <ApplicationTitle>FaceCheck</ApplicationTitle>
     <ApplicationVersion>1</ApplicationVersion>
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -13,6 +13,13 @@
     <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
     <!-- FacePing runs on 64-bit phones (and x86_64 emulators). -->
     <RuntimeIdentifiers>android-arm64;android-x64</RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <!-- Check-in device mode: with a DeviceToken set in FaceCheck/App.axaml.cs, the app gets ".device" on its id and the
+       name "FaceCheck Device", so it installs next to the sandbox app instead of replacing it. -->
+  <PropertyGroup Condition="$([System.Text.RegularExpressions.Regex]::IsMatch($([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)../FaceCheck/App.axaml.cs')), 'DeviceToken = &quot;fpd_'))">
+    <ApplicationId>$(ApplicationId).device</ApplicationId>
+    <ApplicationTitle>FaceCheck Device</ApplicationTitle>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,7 +32,7 @@
     <PackageReference Include="Avalonia.Android" Version="12.1.4" />
     <PackageReference Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.15" />
     <ProjectReference Include="..\FaceCheck\FaceCheck.csproj" />
-    <PackageReference Include="FacePing.Sdk.Avalonia" Version="1.0.0-preview.11" />
+    <PackageReference Include="FacePing.Sdk.Avalonia" Version="1.0.0-preview.12" />
   </ItemGroup>
 
 </Project>

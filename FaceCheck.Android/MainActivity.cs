@@ -6,7 +6,6 @@ using Avalonia.Android;
 namespace FaceCheck.Android;
 
 [Activity(
-    Label = "FaceCheck",
     Theme = "@style/MyTheme.NoActionBar",
     Icon = "@drawable/icon",
     MainLauncher = true,

@@ -21,7 +21,7 @@ You need the [.NET 10 SDK](https://dotnet.microsoft.com/download) with the Andro
 
 4. Tap **Enrol my face**, then **Verify**: you should see **Match**. Now switch on airplane mode and tap **Verify** again.
 
-Before you build your own app from this, change the app id (`com.example.facecheck.avalonia`) in both platform projects. The name under the icon on Android is the `Label` on `MainActivity` (`FaceCheck.Android/MainActivity.cs`); on iOS it's `CFBundleDisplayName` in `FaceCheck.iOS/Info.plist`.
+Before you build your own app from this, change the app id (`com.yourcompany.facecheck`) in both platform projects. The name under the icon is `ApplicationTitle` in the same two files.
 
 ## Try it as a check-in device
 
@@ -36,7 +36,7 @@ Once you've tried the server side with your sandbox key (a practice check-in lis
    public const string PersonId = "ACME-000123";
    ```
 
-   With a device token set, the sandbox key is ignored. To keep the sandbox app on the phone as well, also give this copy its own `ApplicationId` in both platform projects (for example `com.yourcompany.facecheck.device`) and its own name.
+   With a device token set, the sandbox key is ignored, and both platform projects add `.device` to the app id and name the app **FaceCheck Device**, so it installs next to the sandbox app instead of replacing it.
 
 4. Run it again. The app syncs the list when it starts and shows what it found: how many people synced and whether your person is there, or why not (a revoked or mistyped token, a deleted list, no connection). **Enrol my face** is hidden: people enrol on the server. Tap **Verify** once your person is here.
 
